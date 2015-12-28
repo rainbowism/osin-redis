@@ -142,7 +142,7 @@ func (s *Storage) LoadAuthorize(code string) (*osin.AuthorizeData, error) {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, ErrAuthorizeCodeExpired
+		return nil, ErrAuthorizeCodeNotFound
 	}
 	var data osin.AuthorizeData
 	data.Code = code
@@ -276,7 +276,7 @@ func (s *Storage) LoadAccess(token string) (*osin.AccessData, error) {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, ErrAccessTokenExpired
+		return nil, ErrAccessTokenNotFound
 	}
 	var result osin.AccessData
 	result.AccessToken = token
@@ -366,7 +366,7 @@ func (s *Storage) LoadRefresh(token string) (*osin.AccessData, error) {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, ErrRefreshTokenExpired
+		return nil, ErrRefreshTokenNotFound
 	}
 	access, err := redis.String(values[0], err)
 	if err != nil {
