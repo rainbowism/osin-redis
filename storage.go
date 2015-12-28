@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/RangelReale/osin"
 	"github.com/garyburd/redigo/redis"
+	"github.com/rainbowism/osin"
 )
 
 // Storage complies with the osin.Storage interface
@@ -52,7 +52,7 @@ func (s *Storage) GetClient(id string) (osin.Client, error) {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, fmt.Errorf("Cannot find client \"%s\"", id)
+		return nil, ErrClientNotFound
 	}
 	var c osin.DefaultClient
 	c.Id = id
@@ -142,7 +142,7 @@ func (s *Storage) LoadAuthorize(code string) (*osin.AuthorizeData, error) {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, fmt.Errorf("Cannot find code \"%s\"", code)
+		return nil, ErrAuthorizeCodeExpired
 	}
 	var data osin.AuthorizeData
 	data.Code = code
@@ -243,7 +243,7 @@ func (s *Storage) SaveAccess(data *osin.AccessData) error {
 	}
 
 	if data.Client == nil {
-		return fmt.Errorf("data.client must not be nil")
+		return ErrClientIsNil
 	}
 
 	if err = conn.Send("HMSET", "t:"+data.AccessToken,
@@ -276,7 +276,7 @@ func (s *Storage) LoadAccess(token string) (*osin.AccessData, error) {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, fmt.Errorf("Cannot find token \"%s\"", token)
+		return nil, ErrAccessTokenExpired
 	}
 	var result osin.AccessData
 	result.AccessToken = token
@@ -366,7 +366,7 @@ func (s *Storage) LoadRefresh(token string) (*osin.AccessData, error) {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, fmt.Errorf("Cannnot find refresh token \"%s\"", token)
+		return nil, ErrRefreshTokenExpired
 	}
 	access, err := redis.String(values[0], err)
 	if err != nil {
