@@ -1,11 +1,13 @@
 package osinredis
 
 import (
+	"encoding/json"
 	"fmt"
-	"time"
-
 	"github.com/garyburd/redigo/redis"
 	"github.com/rainbowism/osin"
+	"reflect"
+	"strings"
+	"time"
 )
 
 // Storage complies with the osin.Storage interface
@@ -392,6 +394,14 @@ func assertToString(in interface{}) (string, error) {
 		return data, nil
 	} else if str, ok := in.(fmt.Stringer); ok {
 		return str.String(), nil
+	} else if strings.Contains(reflect.TypeOf(in).String(), "struct") {
+		//Added for struct
+		out, err := json.Marshal(in)
+		if err != nil {
+			return "", err
+		}
+		return string(out), nil
+
 	}
 	return "", fmt.Errorf("Could not assert \"%v\" to string", in)
 }
